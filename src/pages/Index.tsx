@@ -89,6 +89,7 @@ const Index = () => {
   const [currentSkin, setCurrentSkin] = useState(savedState?.currentSkin || 0);
   const [clickAnimation, setClickAnimation] = useState(false);
   const [floatingCoins, setFloatingCoins] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [showAchievements, setShowAchievements] = useState(false);
 
   const [upgrades, setUpgrades] = useState<Upgrade[]>(savedState?.upgrades || [
     { id: 'auto1', name: 'Аптечка первой помощи', icon: 'Heart', cost: 50, effect: 1, owned: 0, type: 'auto', description: 'Базовое восстановление ресурсов' },
@@ -392,6 +393,22 @@ const Index = () => {
                     style={{ mixBlendMode: 'lighten' }}
                   />
                   <div className={`absolute inset-0 bg-gradient-to-t ${getRarityColor(skins[currentSkin].rarity)} opacity-20 rounded-full blur-3xl pointer-events-none`} />
+                  
+                  {/* Оружие на персонаже */}
+                  {weapons.filter(w => w.owned > 0).slice(0, 3).map((weapon, idx) => (
+                    <div 
+                      key={weapon.id}
+                      className="absolute bg-gradient-to-r from-red-600 to-orange-600 text-white px-3 py-1.5 rounded-lg shadow-xl text-xs font-bold flex items-center gap-1"
+                      style={{ 
+                        top: `${20 + idx * 50}px`,
+                        right: '-20px'
+                      }}
+                    >
+                      <Icon name={weapon.icon} size={14} />
+                      {weapon.name}
+                      {weapon.owned > 1 && <span className="text-yellow-300">x{weapon.owned}</span>}
+                    </div>
+                  ))}
                 </div>
                 {floatingCoins.map(coin => (
                   <div
@@ -684,26 +701,60 @@ const Index = () => {
         </div>
 
         <div className="fixed top-4 right-4 z-50">
-          <Card className="bg-slate-800/90 backdrop-blur-xl border-orange-500/30 p-4 max-w-xs">
-            <div className="text-orange-400 font-bold mb-2 flex items-center gap-2">
-              <Icon name="Trophy" size={20} />
-              Достижения
-            </div>
-            <div className="space-y-2 max-h-48 overflow-y-auto">
-              {achievements.map(ach => (
-                <div key={ach.id} className={`text-xs p-2 rounded ${ach.completed ? 'bg-green-900/50 text-green-300' : 'bg-slate-700/50 text-gray-400'}`}>
-                  <div className="flex items-center gap-2">
-                    <Icon name={ach.icon} size={14} />
-                    <span className="font-semibold">{ach.name}</span>
-                  </div>
-                  <div className="text-[10px] mt-1">{ach.description}</div>
-                  {ach.completed && (
-                    <div className="text-[10px] text-yellow-400 mt-1">+{ach.reward} монет</div>
-                  )}
+          <Button 
+            onClick={() => setShowAchievements(!showAchievements)}
+            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 shadow-2xl"
+            size="lg"
+          >
+            <Icon name="Trophy" size={20} className="mr-2" />
+            Достижения
+            {achievements.filter(a => a.completed).length > 0 && (
+              <Badge className="ml-2 bg-yellow-500 text-black font-bold">
+                {achievements.filter(a => a.completed).length}/{achievements.length}
+              </Badge>
+            )}
+          </Button>
+
+          {showAchievements && (
+            <Card className="bg-slate-800/95 backdrop-blur-xl border-orange-500/30 p-4 max-w-xs mt-2 shadow-2xl">
+              <div className="text-orange-400 font-bold mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Icon name="Trophy" size={20} />
+                  Достижения
                 </div>
-              ))}
-            </div>
-          </Card>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowAchievements(false)}
+                  className="h-6 w-6 p-0"
+                >
+                  <Icon name="X" size={16} />
+                </Button>
+              </div>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {achievements.map(ach => (
+                  <div key={ach.id} className={`text-xs p-3 rounded-lg transition-all ${
+                    ach.completed 
+                      ? 'bg-gradient-to-r from-green-900/70 to-emerald-900/70 text-green-300 border-2 border-green-500/50' 
+                      : 'bg-slate-700/50 text-gray-400 border border-slate-600'
+                  }`}>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon name={ach.icon} size={16} />
+                      <span className="font-semibold">{ach.name}</span>
+                      {ach.completed && <Icon name="CheckCircle2" size={14} className="ml-auto text-green-400" />}
+                    </div>
+                    <div className="text-[11px] mt-1 opacity-90">{ach.description}</div>
+                    {ach.completed && (
+                      <div className="text-xs text-yellow-400 mt-2 font-bold flex items-center gap-1">
+                        <Icon name="Coins" size={12} />
+                        +{ach.reward} монет
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
         </div>
       </div>
     </div>

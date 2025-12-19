@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { toast } from 'sonner';
 
 interface Upgrade {
   id: string;
@@ -132,9 +131,6 @@ const Index = () => {
     const newLevel = Math.floor((totalClicks * wisdomBonus) / 100) + 1;
     if (newLevel > level) {
       setLevel(newLevel);
-      toast.success(`🎉 Уровень ${newLevel}!`, {
-        description: 'Поздравляем с новым уровнем!'
-      });
     }
   }, [totalClicks, level, skills]);
 
@@ -192,15 +188,12 @@ const Index = () => {
       setFloatingCoins(prev => prev.filter(c => c.id !== id));
     }, 1000);
 
-    if (bonusText) {
-      toast.success(bonusText, { description: `+${Math.floor(earnedCoins)} монет!` });
-    }
+
   };
 
   const buyUpgrade = (upgradeId: string) => {
     const upgrade = upgrades.find(u => u.id === upgradeId);
     if (!upgrade || coins < upgrade.cost) {
-      toast.error('Недостаточно монет!');
       return;
     }
 
@@ -215,7 +208,6 @@ const Index = () => {
       }
       return u;
     }));
-    toast.success(`${upgrade.name} куплено!`);
   };
 
   const buySkin = (skinId: string) => {
@@ -227,12 +219,10 @@ const Index = () => {
     }
 
     if (level < skin.levelRequired) {
-      toast.error(`Требуется ${skin.levelRequired} уровень!`);
       return;
     }
 
     if (coins < skin.coinCost) {
-      toast.error('Недостаточно монет!');
       return;
     }
 
@@ -241,13 +231,11 @@ const Index = () => {
       s.id === skinId ? { ...s, unlocked: true } : s
     ));
     setCurrentSkin(skinIndex);
-    toast.success(`${skin.name} разблокирован!`);
   };
 
   const upgradeSkill = (skillId: string) => {
     const skill = skills.find(s => s.id === skillId);
     if (!skill || coins < skill.cost) {
-      toast.error('Недостаточно монет!');
       return;
     }
 
@@ -262,7 +250,6 @@ const Index = () => {
       }
       return s;
     }));
-    toast.success(`${skill.name} улучшен!`);
   };
 
   return (
